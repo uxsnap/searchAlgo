@@ -5,16 +5,27 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Search Algo</title>
   <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
 </head>
 <body>
   <div id="grid"></div>
-  <button id="start">Start</button>
-  <button id="reset">Reset</button>
-  <div class="tabs">
-    <div data-index="0" class="tab tab_active">Breadth-first search</div>
-    <div data-index="1" class="tab">Dijkstra algo</div>
-    <div data-index="2" class="tab">A*</div>
+  <div class="buttons">
+    <button id="start">Start</button>
+    <button id="reset">Reset</button>
   </div>
-  <script src="index.js"></script>
+  <form class="searchTypes" id="searchType">
+    <label class="searchType" for="searchType1">
+      <input id="searchType1" name="searchType"  type="radio" value="0"  checked>Breadth-first search</label>
+    <label class="searchType" for="searchType2">
+      <input id="searchType2" name="searchType"  type="radio" value="1" >Dijkstra algo</label>
+    <label class="searchType" for="searchType3">
+      <input id="searchType3" name="searchType"  type="radio" value="2" >A Star</label>
+    <label class="gridSize" for="gridSize">
+      <div>Grid size</div>
+      <input id="gridSize" type="range" min="10" value="20" step="1">
+    </label>
+  </form>
+  <script src="bundle.js"></script>
 </body>
 </html>

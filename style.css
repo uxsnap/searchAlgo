@@ -1,15 +1,24 @@
-html, body, #grid {
+html, body {
   margin: 0;
   padding: 0;
+  height: 100%; width: 100%;
+  font-family: 'Roboto', sans-serif;
 }
 
 * {
   box-sizing: border-box;
 }
 
+body {
+  position: relative;
+}
+
 #grid {
   display: flex;
   flex-wrap: wrap;
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
 }
 
 @keyframes visited {
@@ -46,6 +55,43 @@ html, body, #grid {
   background-color: #e3e4e9;
 }
 
+.buttons,
+.searchTypes {
+  position: absolute;
+}
+
+.searchTypes {
+  top: 10px;
+  left: 10px;
+}
+
+.gridSize {
+  margin-top: 20px;
+}
+
+.buttons {
+  left: 50%;
+  bottom: 10px;
+  transform: translate(-50%, -50%);
+}
+
+.buttons > button {
+  outline: none;
+  padding: 8px 15px;
+  font-size: 14px;
+  background-color: #5181b8;
+  color: #fff;
+  font-weight: bold;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+}
+
+.buttons > button:active {
+  background-color: #2a5885;
+  box-shadow: inset 0 0 2px #e3e4e9;
+}
+
 .start {
   background-color: #b3fe3e !important;
 }
@@ -68,19 +114,19 @@ html, body, #grid {
   background-color: #3E3E40;
 }
 
-.tabs {
+.searchTypes {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
+  flex-direction: column;
 }
 
-.tab {
-  padding: 6px 10px;
-  border-radius: 5px;
-  border: 1px solid grey;
+.searchType {
+  /*padding: 6px 10px;*/
+  /*border-radius: 5px;*/
+  /*border: 1px solid grey;*/
+  /*border-left: none;*/
   cursor: pointer;
-}
-
-.tab_active {
-  background-color: grey;
-  color: white;
+  margin-top: 10px; 
+  /*font-weight: 500;*/
+  font-size: 18px;
 }
