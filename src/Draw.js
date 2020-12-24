@@ -1,6 +1,7 @@
 export default class {
   constructor(cells) {
     this.cells = cells;
+    this.interval = null;
   }
 
   initialDraw(grid) {
@@ -18,22 +19,62 @@ export default class {
     );
   }
 
+  clearChecked() {
+    this.cells.forEach((cell) => {
+      cell.elem.classList.remove('checked', 'way', 'checked-anim', 'way-anim');
+    });
+  }
+
+  destroy() {
+    clearTimeout(this.interval);
+    this.cells = null;
+  }
+
   setCells(cells) {
     this.cells = cells;
   }
 
   getCells() {
-    return { ...this.cells };
+    return this.cells;
   }
 
-  drawWay(grid, history, end) {
-    if (end === 'S') return;
-    return setTimeout(() => {
+  showAlgo(values, ind, cb) {
+    if (ind === values.length) {
+      cb();
+      return;
+    }
+    this.interval = setTimeout(() => {
+      const cellInd = values[ind];
+      cellInd && this.cells[cellInd] && this.cells[cellInd].elem.classList.add('checked-anim');
+      this.interval = setTimeout(() => this.showAlgo(values, ind + 1, cb));
+    });
+  }
+
+  showAlgoNow(values) {
+    for (let i = 0; i < values.length; i++) {
+      const cellInd = values[i];
+      this.cells[cellInd].elem.classList.add('checked');
+    }
+  }
+
+  drawWayNow(history, end) {
+    let val = history.get(end);
+    while (true) {
+      if (end === 'S') break;
+      end = val;
+      this.cells[val] && this.cells[val].elem.classList.add('way');
+      val = history.get(end);
+    }
+  }
+
+  drawWay(grid, history, end, cb) {
+    if (end === 'S') return cb(true);
+    this.interval = setTimeout(() => {
       const val = history.get(end);
       end = val;
-      setTimeout(() => drawWay(history, val));
-      grid.children[val] && grid.children[val].classList.add('way');
-    }, 10);
+      this.interval = setTimeout(() => this.drawWay(grid, history, val, cb));
+      grid.children[val] && grid.children[val].classList.add('way-anim');
+    });
   }
 
   drawEnd(index, end) {
@@ -68,41 +109,5 @@ export default class {
     currentElement.cStart = true;
     currentElement.elem.classList.add('start');
     return { x: currentElement.x, y: currentElement.y, g: 0, h: 0, f: 0 };
-  }
-
-  drawBlocksOnGrid(
-    event 
-  ) {
-    const cells = this.getCells();
-    const currentElement = cells[elem.getAttribute('coord')];
-    if (Shift) {
-      if (endCoord) {
-        cells[coord(endCoord)].cEnd = false;
-        cells[coord(endCoord)].elem.classList.remove('end');
-      }
-      currentElement.cEnd = true; 
-      currentElement.cObstacle = false; 
-      currentElement.cStart = false;
-      currentElement.elem.classList.add('end');
-      endCoord = { x: currentElement.x, y: currentElement.y };
-
-    } else if (Ctrl) {
-      currentElement.cEnd = false; 
-      currentElement.cObstacle = true; 
-      currentElement.cStart = false;
-      currentElement.elem.classList.add('block');
-    } else {
-      if (startCoord) {
-        cells[coord(startCoord)].cStart = false;
-        cells[coord(startCoord)].elem.classList.remove('start');
-      }
-      currentElement.cEnd = false; 
-      currentElement.cObstacle = false; 
-      currentElement.cStart = true;
-      startCoord = { x: currentElement.x, y: currentElement.y, g: 0, h: 0, f: 0 };
-    }
-    elem.classList.add(Shift ? 'end' : Ctrl ? 'block' : 'start');
-
-    this.setCells(cells);
   }
 }

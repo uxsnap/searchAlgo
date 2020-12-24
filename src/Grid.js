@@ -6,38 +6,47 @@ export default class {
   constructor(grid, options) {
     this.grid = grid;
     this.options = options;
-    this.generateInstance = new Generate(
-      options.cellNum, 
-      options.coord
-    );
-    this.drawInstance = new Draw(this.generateInstance.generate());
+    this.generateInstance = null;
+    this.drawInstance = null;
+    this.generate();
   }
 
-  generateGrid() {
+  generate() {
+    this.generateInstance = new Generate(
+      this.options.cellNum, 
+      this.options.coord
+    );
+    this.drawInstance = new Draw(this.generateInstance.generate());
     this.drawInstance.initialDraw(this.grid);
   }
 
   resetGrid() {
     this.grid.innerHTML = '';
     this.grid.className = undefined;
-    this.drawInstance.setCells(this.generateInstance.generate());
+    this.drawInstance.destroy();
     this.options =  { ...this.options, ...initialOptions() };
-    this.generateGrid();
+    this.generate();
+  }
+
+  getOption(optionName) {
+    return this.options[optionName];
   }
 
   setOption(optionName, optionValue) {
     this.options[optionName] = optionValue;
   }
 
-  updateGrid(event) {
-    if (!this.options.dragged) return;
-    const elem = event.target;
+  updateGrid(elem) {
+    const { found, dragged } = this.options;
+    if (!dragged) return;
+    if (found && elem.classList.contains('block')) return;
     const elemIndex = +elem.getAttribute('coord');
     if (this.options.Shift) {
       this.setOption(
         'endCoord',
         this.drawInstance.drawEnd(elemIndex, this.options.endCoord && this.options.coord(this.options.endCoord))
       );
+      found && this.redrawAlgo();
     } else if (this.options.Ctrl) {
       this.drawInstance.drawWall(elemIndex);
     } else {
@@ -45,6 +54,7 @@ export default class {
         'startCoord',
         this.drawInstance.drawStart(elemIndex, this.options.startCoord && this.options.coord(this.options.startCoord))
       );
+      found && this.redrawAlgo();
     }
   }
 
@@ -52,15 +62,29 @@ export default class {
     if (this.getOption('started')) return;
     this.setOption('started', true);
     this.grid.className = 'no-click';
-    const { endCoord, startCoord } = this.options;
+    const { searchFunction, endCoord, startCoord, cellNum, coord } = this.options;
     if (endCoord && startCoord) {
-      const searchFunction = getCurrentSearchFunction(+currentTab);
-      const history = searchFunction(cells, startCoord, endCoord, options.cellNum);
+      const history = searchFunction(this.drawInstance.getCells(), startCoord, endCoord, cellNum);
       const historyValues = [...history.keys()];
-      let endComputed = coord(endCoord, options.cellNum);
-      showAlgo(historyValues, 0, function() {
-        drawWay(history, endComputed);
+      let endComputed = coord(endCoord);
+      this.drawInstance.showAlgo(historyValues, 0, async () => {
+        this.drawInstance.drawWay(this.grid, history, endComputed, (found) => {
+          this.setOption('found', found);
+          found && this.grid.classList.remove('no-click');
+        });
       });
     }
   }
-}
+
+  redrawAlgo() {
+    const { searchFunction, endCoord, startCoord, cellNum, coord, found } = this.options;
+    if (endCoord && startCoord && found) {
+      const history = searchFunction(this.drawInstance.getCells(), startCoord, endCoord, cellNum);
+      const historyValues = [...history.keys()];
+      let endComputed = coord(endCoord);
+      this.drawInstance.clearChecked();
+      this.drawInstance.showAlgoNow(historyValues);
+      this.drawInstance.drawWayNow(history, endComputed);
+    }
+  }
+} 

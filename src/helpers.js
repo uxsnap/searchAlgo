@@ -8,6 +8,8 @@ export const initialOptions = () => ({
   startCoord: null,
 });
 
+export const coord = (max, obj) => obj.x * max + obj.y;
+
 export const createNeighbours = (node, max) => {
   const neighbours = [];
   for (const dir of [
@@ -28,6 +30,6 @@ export const pointDist = (p1, p2) => {
   return Math.sqrt((p1.x - p2.x)**2 + (p1.y - p2.y)**2);
 };
 
-const isWall = (cells, index) => {
+export const isWall = (cells, index) => {
   return cells[index] && cells[index].cObstacle;
 };

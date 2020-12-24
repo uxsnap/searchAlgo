@@ -51,7 +51,7 @@ body {
   width: 20px;
   height: 20px;
   /*margin: 2px;*/
-  outline: 1px solid black;
+  outline: 1px solid #C0C0C0;
   background-color: #e3e4e9;
 }
 
@@ -100,18 +100,27 @@ body {
   background-color: #fee345 !important;
 }
 
-.block {
-  background-color: #D93B3B;
-}
 
-.checked {
+.checked-anim {
   animation: ease-in .7s visited;
   background: #A7D9D4;
 }
 
-.way {
+.way-anim {
   animation: ease-in .7s path;
   background-color: #3E3E40;
+}
+
+.checked {
+  background: #A7D9D4;
+}
+
+.way {
+  background-color: #3E3E40;
+}
+
+.block {
+  background-color: #D93B3B;
 }
 
 .searchTypes {

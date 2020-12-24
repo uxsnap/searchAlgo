@@ -5,32 +5,28 @@ const tabs = document.querySelector('.tabs');
 const radios = document.getElementsByName('searchType');
 const gridRange = document.getElementById('gridSize');
 
-import { initialOptions } from './helpers';
+import { initialOptions, coord } from './helpers';
+import { BFS, Dijkstra, Astar } from './algos';
 import Grid from './Grid';
 import Generate from './Generate';
 
 // Preparations
 gridRange.setAttribute('max', (width / 25).toFixed(0));
-const coord = (max, obj) => obj.x * max + obj.y;
 
+let currentAlgo = 0;
+let cellNum = 20;
 // Global options object 
-let options = {
-  cellNum: 20,
-  ...initialOptions(),
-  currentTab: 0,
-};
-const bindedCoord = coord.bind(null, options.cellNum);
-options.coord = bindedCoord;
+let options = { ...initialOptions() };
+const bindedCoord = coord.bind(null, cellNum);
 
-grid.style.width = options.cellNum * 20 + 'px';
+grid.style.width = cellNum * 20 + 'px';
 
 /* ## Generating grid */ 
 const gridInstance = new Grid(
   grid,
-  options
+  { ...options, coord: bindedCoord, cellNum } 
 );
 
-gridInstance.generateGrid();
 /* ## Generating grid */
 
 function drawWay(history, end) {
@@ -43,28 +39,18 @@ function drawWay(history, end) {
   }, 10);
 }
 
-function showAlgo(values, ind, cb) {
-  if (ind === values.length) {
-    cb();
-    return;
-  }
-  setTimeout(() => {
-    const cellInd = values[ind];
-    cellInd && cells[cellInd] && cells[cellInd].elem.classList.add('checked');
-    setTimeout(() => showAlgo(values, ind + 1, cb), 10);
-  }, 10);
-}
-
 gridRange.onchange = changeGridSize;
 
 function changeGridSize(event) {
-  options.cellNum = event.target.value;
-  grid.style.width = options.cellNum * 20 + 'px';
-  resetGrid();
+  cellNum = +event.target.value;
+  grid.style.width = cellNum * 20 + 'px';
+  gridInstance.setOption('cellNum', cellNum);
+  gridInstance.setOption('coord', coord.bind(null, cellNum));
+  gridInstance.resetGrid();
 }
 
-function getCurrentSearchFunction(currentTab) {
-  switch (currentTab) {
+function getCurrentSearchFunction(currentAlgo) {
+  switch (currentAlgo) {
     case 0:
       return BFS;
     case 1:
@@ -74,34 +60,39 @@ function getCurrentSearchFunction(currentTab) {
   }
 }
 
-
-start.onclick = async () => gridInstance.startAlgo();
-
-reset.onclick = () => {
-  gridInstance.resetGrid();
+start.onclick = () => {
+  gridInstance.setOption('searchFunction', getCurrentSearchFunction(+currentAlgo));
+  gridInstance.startAlgo();
 }
+
+reset.onclick = () => gridInstance.resetGrid();
 
 radios.forEach((radio) => {
-  radio.onclick = (event) => gridInstance.setOption('currentTab', event.target.value); 
+  radio.onclick = (event) => { currentAlgo = event.target.value; gridInstance.resetGrid(); }; 
 });
 
-document.body.onmouseup = function(event) {
+grid.onmouseup = function(event) {
+  gridInstance.updateGrid(event.target);
   gridInstance.setOption('dragged', false);
 }
 
-document.body.onclick = function(event) {
+
+grid.onclick = function(event) {
+  if (!gridInstance.getOption('dragged')) {
+    return;
+  }
   gridInstance.setOption('dragged', true);
-  gridInstance.updateGrid(event);
+  gridInstance.updateGrid(event.target);
   gridInstance.setOption('dragged', false);
 }
 
-document.body.onmousedown = function(event) {
+grid.onmousedown = function(event) {
   gridInstance.setOption('dragged', true);
 }
 
-document.body.onmousemove = function(event) {
+grid.onmousemove = function(event) {
   gridInstance.getOption('dragged') &&
-    gridInstance.updateGrid(event);
+    gridInstance.updateGrid(event.target);
 };
 
 document.body.onkeydown = function(event) {

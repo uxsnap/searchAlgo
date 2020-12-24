@@ -9,10 +9,7 @@ export default class {
     const cells = [];
     for (let i = 0; i < this.max; i++) {
       for (let j = 0; j < this.max; j++) {
-        // const div = document.createElement('div');
         const curCoord = this.coordFunc({ x: i, y: j });
-        // div.setAttribute('coord', curCoord);
-        // div.classList.add('cell');
         cells[curCoord] = {
           x: i,
           y: j,
@@ -23,10 +20,7 @@ export default class {
           cChecked: false,
           cEnd: false,
           cObstacle: false,
-          // elem: div,
         };
-        // cells.push(div);
-        // this.grid.appendChild(div);
       }
     }
     return cells;
