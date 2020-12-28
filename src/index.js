@@ -29,16 +29,6 @@ const gridInstance = new Grid(
 
 /* ## Generating grid */
 
-function drawWay(history, end) {
-  if (end === 'S') return;
-  return setTimeout(() => {
-    const val = history.get(end);
-    end = val;
-    setTimeout(() => drawWay(history, val));
-    cells[val] && cells[val].elem.classList.add('way');
-  }, 10);
-}
-
 gridRange.onchange = changeGridSize;
 
 function changeGridSize(event) {
@@ -65,6 +55,8 @@ start.onclick = () => {
   gridInstance.startAlgo();
 }
 
+maze.onclick = () => gridInstance.generateMazeOnGrid();
+
 reset.onclick = () => gridInstance.resetGrid();
 
 radios.forEach((radio) => {
@@ -72,16 +64,6 @@ radios.forEach((radio) => {
 });
 
 grid.onmouseup = function(event) {
-  gridInstance.updateGrid(event.target);
-  gridInstance.setOption('dragged', false);
-}
-
-
-grid.onclick = function(event) {
-  if (!gridInstance.getOption('dragged')) {
-    return;
-  }
-  gridInstance.setOption('dragged', true);
   gridInstance.updateGrid(event.target);
   gridInstance.setOption('dragged', false);
 }

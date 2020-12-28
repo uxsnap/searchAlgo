@@ -4,19 +4,29 @@ export default class {
     this.interval = null;
   }
 
-  initialDraw(grid) {
-    this.setCells(
-      this.cells.map((cell, i) => {
-        const div = document.createElement('div');
-        div.setAttribute('coord', i)
-        div.classList.add('cell');
-        grid.appendChild(div);
-        return {
-          ...cell,
-          elem: div
-        }
-      })
-    );
+  addToGrid(grid, cell, index) {
+    const div = document.createElement('div');
+    div.setAttribute('coord', index)
+    div.classList.add('cell');
+    const finalDiv = !grid.children[index] ? grid.appendChild(div) : grid.children[index];
+    return {
+      ...cell,
+      elem: finalDiv
+    }
+  }
+
+  initialDraw(grid, cells = []) {
+    const requiredCells = cells.length ? cells : this.cells;
+    this.setCells(requiredCells.map((cell, index) => this.addToGrid(grid, cell, index)));
+  }
+
+  drawMaze(grid, cells) {
+    this.initialDraw(grid, cells);
+    for (let i = 0; i < this.cells.length; i++) {
+      if (this.cells[i].cObstacle) {
+        this.drawWall(i);
+      }
+    }
   }
 
   clearChecked() {
@@ -104,10 +114,12 @@ export default class {
       this.cells[start].cStart = false;
       this.cells[start].elem.classList.remove('start');
     }
-    currentElement.cEnd = false; 
+    if (currentElement.cObstacle) return;
+    currentElement.cEnd = false;
     currentElement.cObstacle = false; 
     currentElement.cStart = true;
     currentElement.elem.classList.add('start');
     return { x: currentElement.x, y: currentElement.y, g: 0, h: 0, f: 0 };
   }
+
 }

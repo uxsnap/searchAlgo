@@ -1,3 +1,5 @@
+import { mazeGenerator } from './algos';
+
 export default class {
   constructor(max, coordFunc) {
     // this.grid = grid;
@@ -20,10 +22,15 @@ export default class {
           cChecked: false,
           cEnd: false,
           cObstacle: false,
+          cChecked: false, // For maze
         };
       }
     }
     return cells;
+  }
+
+  generateMaze(cells) {
+    return mazeGenerator(cells, this.max);
   }
 }
 

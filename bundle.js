@@ -11,10 +11,11 @@ const coord = (max, obj) => obj.x * max + obj.y;
 const createNeighbours = (node, max) => {
   const neighbours = [];
 
-  for (const dir of [[0, 1], [0, -1], [-1, 0], [1, 0]]) {
+  for (const dir of [[-1, 0, 'w'], [1, 0, 'e'], [0, -1, 's'], [0, 1, 'n']]) {
     const neighbour = {
       x: node.x + dir[0],
-      y: node.y + dir[1]
+      y: node.y + dir[1],
+      dir: dir[2]
     };
 
     if (neighbour.x < max && neighbour.y < max && neighbour.y > -1 && neighbour.x > -1) {
@@ -25,10 +26,15 @@ const createNeighbours = (node, max) => {
   return neighbours;
 };
 const pointDist = (p1, p2) => {
-  return Math.sqrt((p1.x - p2.x) ** 2 + (p1.y - p2.y) ** 2);
+  const d1 = Math.abs(p1.x - p2.x);
+  const d2 = Math.abs(p1.y - p2.y);
+  return d1 + d2;
 };
 const isWall = (cells, index) => {
   return cells[index] && cells[index].cObstacle;
+};
+const getRandomElementIndexFromList = list => {
+  return Math.floor(Math.random() * list.length);
 };
 
 const BFS = (nodes, startNode, endNode, max) => {
@@ -114,7 +120,7 @@ const Astar = (nodes, startNode, endNode, max) => {
     let si = 0;
 
     for (let i = 1; i < queue.length; i++) {
-      if (queue[i].h < queue[si].h) {
+      if (queue[i].f < queue[si].f) {
         si = i;
       }
     }
@@ -129,17 +135,16 @@ const Astar = (nodes, startNode, endNode, max) => {
     closed.push(node);
     const prevCoord = coord(max, node);
     const neighbours = createNeighbours(node, max);
+    let gScore = node.g + 1;
+    let gBest = false;
     neighbours.forEach(item => {
       if (closed.find(c => coord(max, c) === coord(max, item)) || isWall(nodes, coord(max, item))) {
         return;
       }
 
-      let gScore = node.g + 1;
-      let gBest = false;
-
       if (!queue.find(q => coord(max, q) === coord(max, item))) {
         gBest = true;
-        item.h = pointDist(node, endNode);
+        item.h = pointDist(item, endNode);
         queue.push(item);
       } else if (gScore < item.g) {
         gBest = true;
@@ -153,6 +158,99 @@ const Astar = (nodes, startNode, endNode, max) => {
     });
   }
 };
+const mazeGenerator = (nodes, max) => {
+  const maze = nodes.map(node => ({
+    x: node.x,
+    y: node.y,
+    cObstacle: true,
+    isInMaze: false
+  }));
+  const wallCheck = {
+    'n': [0, 1, 0, -1],
+    's': [0, -1, 0, 1],
+    'e': [1, 0, -1, 0],
+    'w': [-1, 0, 1, 0]
+  };
+
+  const cellsThatWallDivides = wall => {
+    const offset = wallCheck[wall.dir];
+    return [maze[coord(max, {
+      x: wall.x + offset[0],
+      y: wall.y + offset[1]
+    })], maze[coord(max, {
+      x: wall.x + offset[2],
+      y: wall.y + offset[3]
+    })]].filter(cell => cell && !cell.isInMaze);
+  };
+
+  const wallInd = Math.floor(Math.random() * maze.length);
+  maze[wallInd].cObstacle = false;
+  maze[wallInd].isInMaze = true;
+  const startingCell = maze[wallInd];
+  const walls = [];
+  if (startingCell.x - 1 > -1) walls.push({ ...maze[coord(max, { ...startingCell,
+      x: startingCell.x - 1
+    })],
+    dir: 'w'
+  });
+  if (startingCell.y - 1 > -1) walls.push({ ...maze[coord(max, { ...startingCell,
+      y: startingCell.y - 1
+    })],
+    dir: 's'
+  });
+  if (startingCell.x + 1 < max) walls.push({ ...maze[coord(max, { ...startingCell,
+      x: startingCell.x + 1
+    })],
+    dir: 'e'
+  });
+  if (startingCell.y + 1 < max) walls.push({ ...maze[coord(max, { ...startingCell,
+      y: startingCell.y + 1
+    })],
+    dir: 'n'
+  });
+
+  while (walls.length) {
+    const wallIndex = getRandomElementIndexFromList(walls);
+    const wall = walls[wallIndex];
+    const cells = cellsThatWallDivides(wall);
+
+    if (cells.length) {
+      const cell = cells[0];
+      const mazeWallInd = coord(max, wall);
+      const cellWallInd = coord(max, cell);
+      maze[mazeWallInd].cObstacle = false;
+      maze[cellWallInd].cObstacle = false;
+      maze[mazeWallInd].isInMaze = true;
+      maze[cellWallInd].isInMaze = true;
+      if (cell.x - 1 > -1) walls.push({ ...maze[coord(max, { ...cell,
+          x: cell.x - 1
+        })],
+        dir: 'w'
+      });
+      if (cell.y - 1 > -1) walls.push({ ...maze[coord(max, { ...cell,
+          y: cell.y - 1
+        })],
+        dir: 's'
+      });
+      if (cell.x + 1 < max) walls.push({ ...maze[coord(max, { ...cell,
+          x: cell.x + 1
+        })],
+        dir: 'e'
+      });
+      if (cell.y + 1 < max) walls.push({ ...maze[coord(max, { ...cell,
+          y: cell.y + 1
+        })],
+        dir: 'n'
+      });
+    }
+
+    walls.splice(wallIndex, 1);
+  }
+
+  return maze.map(item => ({ ...item,
+    isInMaze: undefined
+  }));
+};
 
 class Draw {
   constructor(cells) {
@@ -160,16 +258,29 @@ class Draw {
     this.interval = null;
   }
 
-  initialDraw(grid) {
-    this.setCells(this.cells.map((cell, i) => {
-      const div = document.createElement('div');
-      div.setAttribute('coord', i);
-      div.classList.add('cell');
-      grid.appendChild(div);
-      return { ...cell,
-        elem: div
-      };
-    }));
+  addToGrid(grid, cell, index) {
+    const div = document.createElement('div');
+    div.setAttribute('coord', index);
+    div.classList.add('cell');
+    const finalDiv = !grid.children[index] ? grid.appendChild(div) : grid.children[index];
+    return { ...cell,
+      elem: finalDiv
+    };
+  }
+
+  initialDraw(grid, cells = []) {
+    const requiredCells = cells.length ? cells : this.cells;
+    this.setCells(requiredCells.map((cell, index) => this.addToGrid(grid, cell, index)));
+  }
+
+  drawMaze(grid, cells) {
+    this.initialDraw(grid, cells);
+
+    for (let i = 0; i < this.cells.length; i++) {
+      if (this.cells[i].cObstacle) {
+        this.drawWall(i);
+      }
+    }
   }
 
   clearChecked() {
@@ -266,6 +377,7 @@ class Draw {
       this.cells[start].elem.classList.remove('start');
     }
 
+    if (currentElement.cObstacle) return;
     currentElement.cEnd = false;
     currentElement.cObstacle = false;
     currentElement.cStart = true;
@@ -309,12 +421,18 @@ class Generate {
           cStart: false,
           cChecked: false,
           cEnd: false,
-          cObstacle: false
+          cObstacle: false,
+          cChecked: false // For maze
+
         };
       }
     }
 
     return cells;
+  }
+
+  generateMaze(cells) {
+    return mazeGenerator(cells, this.max);
   }
 
 }
@@ -374,8 +492,6 @@ class Grid {
 
   startAlgo() {
     if (this.getOption('started')) return;
-    this.setOption('started', true);
-    this.grid.className = 'no-click';
     const {
       searchFunction,
       endCoord,
@@ -385,6 +501,8 @@ class Grid {
     } = this.options;
 
     if (endCoord && startCoord) {
+      this.setOption('started', true);
+      this.grid.className = 'no-click';
       const history = searchFunction(this.drawInstance.getCells(), startCoord, endCoord, cellNum);
       const historyValues = [...history.keys()];
       let endComputed = coord(endCoord);
@@ -395,6 +513,12 @@ class Grid {
         });
       });
     }
+  }
+
+  generateMazeOnGrid() {
+    const cells = this.generateInstance.generateMaze(this.drawInstance.getCells());
+    this.resetGrid();
+    this.drawInstance.drawMaze(this.grid, cells);
   }
 
   redrawAlgo() {
@@ -440,6 +564,7 @@ const gridInstance = new Grid(grid, { ...options,
   coord: bindedCoord,
   cellNum
 });
+/* ## Generating grid */
 
 gridRange.onchange = changeGridSize;
 
@@ -469,6 +594,8 @@ start.onclick = () => {
   gridInstance.startAlgo();
 };
 
+maze.onclick = () => gridInstance.generateMazeOnGrid();
+
 reset.onclick = () => gridInstance.resetGrid();
 
 radios.forEach(radio => {
@@ -479,16 +606,6 @@ radios.forEach(radio => {
 });
 
 grid.onmouseup = function (event) {
-  gridInstance.updateGrid(event.target);
-  gridInstance.setOption('dragged', false);
-};
-
-grid.onclick = function (event) {
-  if (!gridInstance.getOption('dragged')) {
-    return;
-  }
-
-  gridInstance.setOption('dragged', true);
   gridInstance.updateGrid(event.target);
   gridInstance.setOption('dragged', false);
 };

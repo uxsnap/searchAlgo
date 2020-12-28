@@ -60,10 +60,10 @@ export default class {
 
   startAlgo() {
     if (this.getOption('started')) return;
-    this.setOption('started', true);
-    this.grid.className = 'no-click';
     const { searchFunction, endCoord, startCoord, cellNum, coord } = this.options;
     if (endCoord && startCoord) {
+      this.setOption('started', true);
+      this.grid.className = 'no-click';
       const history = searchFunction(this.drawInstance.getCells(), startCoord, endCoord, cellNum);
       const historyValues = [...history.keys()];
       let endComputed = coord(endCoord);
@@ -74,6 +74,12 @@ export default class {
         });
       });
     }
+  }
+
+  generateMazeOnGrid() {
+    const cells = this.generateInstance.generateMaze(this.drawInstance.getCells());
+    this.resetGrid();
+    this.drawInstance.drawMaze(this.grid, cells);
   }
 
   redrawAlgo() {
