@@ -4,6 +4,7 @@ const height = document.documentElement.offsetHeight;
 const tabs = document.querySelector('.tabs');
 const radios = document.getElementsByName('searchType');
 const gridRange = document.getElementById('gridSize');
+const helperButtons = document.querySelector('.helper-buttons');
 
 import { initialOptions, coord } from './helpers';
 import { BFS, Dijkstra, Astar } from './algos';
@@ -14,7 +15,7 @@ import Generate from './Generate';
 gridRange.setAttribute('max', (width / 25).toFixed(0));
 
 let currentAlgo = 0;
-let cellNum = 20;
+let cellNum = 21;
 // Global options object 
 let options = { ...initialOptions() };
 const bindedCoord = coord.bind(null, cellNum);
@@ -78,13 +79,20 @@ grid.onmousemove = function(event) {
 };
 
 document.body.onkeydown = function(event) {
-  if (event.keyCode === 16 /* Shift */)
+  if (event.keyCode === 16 /* Shift */) {
     gridInstance.setOption('Shift', true);
-  else if (event.keyCode === 17 /* Ctrl */)
+    helperButtons.lastElementChild.firstElementChild.classList.add('active');
+  }
+  else if (event.keyCode === 17 /* Ctrl */) {
     gridInstance.setOption('Ctrl', true);
+    helperButtons.firstElementChild.firstElementChild.classList.add('active');
+  }
 };
 
 document.body.onkeyup = function() {
+  for (let i = 0; i < helperButtons.children.length; i++) {
+    helperButtons.children[i].firstElementChild.classList.remove('active');
+  }
   gridInstance.setOption('Ctrl', false);
   gridInstance.setOption('Shift', false);
 };

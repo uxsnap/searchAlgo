@@ -67,7 +67,7 @@ export default class {
       const history = searchFunction(this.drawInstance.getCells(), startCoord, endCoord, cellNum);
       const historyValues = [...history.keys()];
       let endComputed = coord(endCoord);
-      this.drawInstance.showAlgo(historyValues, 0, async () => {
+      this.drawInstance.showAlgo(historyValues, 0, () => {
         this.drawInstance.drawWay(this.grid, history, endComputed, (found) => {
           this.setOption('found', found);
           found && this.grid.classList.remove('no-click');

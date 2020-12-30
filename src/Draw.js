@@ -93,6 +93,7 @@ export default class {
       this.cells[end].cEnd = false;
       this.cells[end].elem.classList.remove('end');
     }
+    if (currentElement.cObstacle) return;
     currentElement.cEnd = true; 
     currentElement.cObstacle = false; 
     currentElement.cStart = false;

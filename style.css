@@ -139,3 +139,56 @@ body {
   /*font-weight: 500;*/
   font-size: 18px;
 }
+
+.helper-buttons {
+  /*padding: 10px;*/
+  margin-top: 20px;
+  max-width: 200px;
+}
+
+.helper-button {
+  font-size: 16px;
+  color: #202020;
+  display: flex;
+  align-items: center;
+}
+
+.helper-button:last-child {
+  margin-top: 20px;
+}
+
+.helper-button div:first-child {
+  padding: 8px 10px;
+  margin-right: 15px;
+  background: #000;
+  color: white;
+  /*border-top-left-radius: 5px;*/
+  /*border-top-right-radius: 5px;*/
+  position: relative;
+  z-index: 1000;
+}
+
+/*.helper-button div:first-child:after {
+  content: '';
+  display: block; 
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  height: 4px;
+  width: 100%;
+  background-color: darkgrey;
+  border-bottom-left-radius: 5px; 
+  border-bottom-right-radius: 5px;
+}*/
+
+.helper-button > div.active:first-child {
+  /*transform: translateY(5px);*/
+  background: transparent;
+  color: #000;
+  outline: 1px solid #000;
+  border-radius: 5px;
+}
+
+.helper-button > .active:after {
+  display: none !important;
+}

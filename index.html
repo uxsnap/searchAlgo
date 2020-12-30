@@ -15,7 +15,7 @@
     <button id="reset">Reset</button>
     <button id="maze">Generate maze</button>
   </div>
-  <form class="searchTypes" id="searchType">
+  <div class="searchTypes" id="searchType">
     <label class="searchType" for="searchType1">
       <input id="searchType1" name="searchType"  type="radio" value="0"  checked>Breadth-first search</label>
     <label class="searchType" for="searchType2">
@@ -24,9 +24,22 @@
       <input id="searchType3" name="searchType"  type="radio" value="2" >A Star</label>
     <label class="gridSize" for="gridSize">
       <div>Grid size</div>
-      <input id="gridSize" type="range" min="10" value="20" step="1">
+      <input id="gridSize" type="range" min="11" value="21" step="2">
     </label>
-  </form>
+    <div class="helper-buttons">  
+        <div class="helper-button">
+          <div>Ctrl</div>
+          <div>Hold to spawn wall</div>
+        </div>
+        <div class="helper-button">
+          <div>Shift</div>
+          <div>Hold to spawn end coord</div>
+        </div>
+        <!-- <div>
+          
+        </div> -->
+    </div>  
+  </div>
   <script src="bundle.js"></script>
 </body>
 </html>

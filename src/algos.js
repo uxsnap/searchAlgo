@@ -1,4 +1,5 @@
-import { getNeighbours, 
+import {
+  getNeighbours, 
   createNeighbours,
   pointDist,
   isWall,
@@ -137,18 +138,21 @@ export const mazeGenerator = (nodes, max) => {
     return !cell ? true : cell.isInMaze;
   };
 
-
-  const wallInd = Math.floor(Math.random() * maze.length);
+  let wallInd = Math.floor(Math.random() * maze.length);
   maze[wallInd].cObstacle = false;
   maze[wallInd].isInMaze = true;
 
+  wallInd = wallInd % 2 === 0 ? wallInd + 1 : wallInd;
   const startingCell = maze[wallInd];
-
   const walls = [];
-  if (startingCell.x - 1 > -1) walls.push({ ...maze[coord(max, { ...startingCell, x: startingCell.x - 1})], dir: 'w',});
-  if (startingCell.y - 1 > -1) walls.push({ ...maze[coord(max, { ...startingCell, y: startingCell.y - 1})], dir: 's',});
-  if (startingCell.x + 1 < max) walls.push({ ...maze[coord(max, { ...startingCell, x: startingCell.x + 1})], dir: 'e',});
-  if (startingCell.y + 1 < max) walls.push({ ...maze[coord(max, { ...startingCell, y: startingCell.y + 1})], dir: 'n',});
+  if (startingCell.x) {
+    if (startingCell.x - 1 > -1) walls.push({ ...maze[coord(max, { ...startingCell, x: startingCell.x - 1})], dir: 'w',});
+    if (startingCell.x + 1 < max) walls.push({ ...maze[coord(max, { ...startingCell, x: startingCell.x + 1})], dir: 'e',});
+  }
+  if (startingCell.y) {
+    if (startingCell.y - 1 > -1) walls.push({ ...maze[coord(max, { ...startingCell, y: startingCell.y - 1})], dir: 's',});
+    if (startingCell.y + 1 < max) walls.push({ ...maze[coord(max, { ...startingCell, y: startingCell.y + 1})], dir: 'n',});
+  }
   while (walls.length) {
     const wallIndex = getRandomElementIndexFromList(walls);
     const wall = walls[wallIndex];
@@ -168,5 +172,11 @@ export const mazeGenerator = (nodes, max) => {
     }
     walls.splice(wallIndex, 1);
   }
+
+  // console.log(maze.filter((item) => item.cObstacle).length, max);
+  if (maze.filter((item) => item.cObstacle).length < maze.length / 2) {
+    return mazeGenerator(nodes, max);
+  } 
+
   return maze.map((item) => ({ ...item, isInMaze: undefined }));
 };
