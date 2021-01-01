@@ -38,6 +38,7 @@ function changeGridSize(event) {
   gridInstance.setOption('cellNum', cellNum);
   gridInstance.setOption('coord', coord.bind(null, cellNum));
   gridInstance.resetGrid();
+  cellNum > 30 ? grid.classList.add('grid_small') : grid.classList.remove('grid_small');
 }
 
 function getCurrentSearchFunction(currentAlgo) {

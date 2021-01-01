@@ -22,7 +22,7 @@ export default class {
 
   resetGrid() {
     this.grid.innerHTML = '';
-    this.grid.className = undefined;
+    this.grid.classList.remove('no-click');
     this.drawInstance.destroy();
     this.options =  { ...this.options, ...initialOptions() };
     this.generate();
@@ -63,7 +63,7 @@ export default class {
     const { searchFunction, endCoord, startCoord, cellNum, coord } = this.options;
     if (endCoord && startCoord) {
       this.setOption('started', true);
-      this.grid.className = 'no-click';
+      this.grid.classList.add('no-click');
       const history = searchFunction(this.drawInstance.getCells(), startCoord, endCoord, cellNum);
       const historyValues = [...history.keys()];
       let endComputed = coord(endCoord);

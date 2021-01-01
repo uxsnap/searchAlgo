@@ -21,6 +21,10 @@ body {
   transform: translate(-50%, -50%);
 }
 
+#grid.grid_small {
+  transform: translate(-50%, -50%) scale(.5);
+}
+
 @keyframes visited {
   0% { 
     /*transform: scale(1.5);*/
