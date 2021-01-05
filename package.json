@@ -4,9 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "scripts": {
-      "start": "node bundle.js"
-    }
+    "start": ""
   },
   "keywords": [],
   "author": "",
