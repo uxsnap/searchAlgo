@@ -22,7 +22,7 @@ body {
 }
 
 #grid.grid_small {
-  transform: translate(-50%, -50%) scale(.5);
+  transform: translate(-50%, -50%) scale(.6);
 }
 
 @keyframes visited {

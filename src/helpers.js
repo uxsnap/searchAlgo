@@ -19,9 +19,14 @@ export const createNeighbours = (node, max) => {
     [0, -1, 's'],
     [0, 1, 'n'],
   ]) {
-    const neighbour = { x: node.x + dir[0], y: node.y + dir[1], dir: dir[2]};
+    const neighbour = { 
+      x: node.x + dir[0], 
+      y: node.y + dir[1], 
+      dir: dir[2],
+    };
     if (neighbour.x < max && neighbour.y < max && neighbour.y > -1 && neighbour.x > -1) {
-      neighbours.push(neighbour);
+      const { x, y } = neighbour;
+      neighbours.push({ ...neighbour, coordIndex: coord(max, { x, y }) });
     }
   }
   return neighbours;
@@ -37,10 +42,6 @@ export const getNeighbours = (nodes, node, max) => {
   });
 };
 
-export const createSimilarNeighbours = (node, max) => {
-  const neighbours = createNeighbours(node, max);
-  return neighbours.map((item) => ({ ...node, x: item.x, y: item.y, elem: undefined }));
-};
 
 export const pointDist = (p1, p2) => {
   const d1 = Math.abs(p1.x - p2.x);

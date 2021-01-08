@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "serve": "rollup -c -w",
     "start": "serve"
   },
   "keywords": [],

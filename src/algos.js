@@ -5,25 +5,24 @@ import {
   isWall,
   coord,
   getRandomElementIndexFromList,
-  createSimilarNeighbours
 } from './helpers';
 
-export const BFS = (nodes, startNode, endNode, max) => {
+export const BFS = (nodes, startNode, endNode) => {
   const queue = [startNode];
   const visited = new Map();
-  visited.set(coord(max, startNode), 'S');
+  visited.set(startNode.coordIndex, 'S');
   while (queue.length) {
     let node = queue.shift();
-    if (node.x === endNode.x && node.y === endNode.y) {
+    if (node.coordIndex === endNode.coordIndex) {
       return visited;
     }
-    const prevCoord = coord(max, node);
-    const neighbours = createNeighbours(node, max);
+    const prevCoord = node.coordIndex;
+    const neighbours = node.neighbours;
     neighbours.forEach((item) => {
-      if (isWall(nodes, coord(max, item))) return;
-      const curCoord = coord(max, item);
+      const curCoord = item.coordIndex;
+      if (isWall(nodes, curCoord)) return;
       if (!visited.get(curCoord)) {
-        queue.push(item);
+        queue.push(nodes[curCoord]);
         visited.set(curCoord, prevCoord);
       }
     });
@@ -31,12 +30,12 @@ export const BFS = (nodes, startNode, endNode, max) => {
   return false;
 }
 
-export const Dijkstra = (nodes, startNode, endNode, max) => {
+export const Dijkstra = (nodes, startNode, endNode) => {
   const history = new Map();
   const d = [];
   const v = [];
   for (let i = 0; i < nodes.length; i++) d[i] = Infinity;
-  const start = coord(max, startNode); 
+  const start = startNode.coordIndex; 
   d[start] = 0;
   history.set(start, 'S');
   while (true) {
@@ -51,14 +50,14 @@ export const Dijkstra = (nodes, startNode, endNode, max) => {
 
     v[si] = true;
     const node = nodes[si]; 
-    if (si === -1 || (node.x === endNode.x && node.y === endNode.y)) {
+    if (si === -1 || (node.coordIndex === endNode.coordIndex)) {
       return history;
     }
-    const prevCoord = coord(max, node);
-    const neighbours = createNeighbours(node, max);
+    const prevCoord = node.coordIndex;
+    const neighbours = node.neighbours;
     neighbours.forEach((item) => {
-      if (isWall(nodes, coord(max, item))) return;
-      const curCoord = coord(max, item);
+      const curCoord = item.coordIndex;
+      if (isWall(nodes, curCoord)) return;
       if (d[curCoord] > d[si]) {
         d[curCoord] = d[si] + 1;
       }
@@ -69,11 +68,11 @@ export const Dijkstra = (nodes, startNode, endNode, max) => {
   }
 };
 
-export const Astar = (nodes, startNode, endNode, max) => {
+export const Astar = (nodes, startNode, endNode) => {
   const history = new Map();
   const queue = [startNode];
   const closed = [];
-  const start = coord(max, startNode); 
+  const start = startNode.coordIndex; 
   history.set(start, 'S');
   while (queue.length) {
     let si =  0;
@@ -83,31 +82,32 @@ export const Astar = (nodes, startNode, endNode, max) => {
       }
     }
     const node = queue[si]; 
-    if (node.x === endNode.x && node.y === endNode.y) {
+    if (node.coordIndex === endNode.coordIndex) {
       const curNode = node;
       const ret = [];
       return history;
     }
     queue.splice(si, 1);
     closed.push(node);
-    const prevCoord = coord(max, node);
-    const neighbours = createNeighbours(node, max);
+    const prevCoord = node.coordIndex;
+    const neighbours = node.neighbours;
     let gScore = node.g + 1;
     let gBest = false;
-    neighbours.forEach((item) => {
-      if (closed.find((c) => coord(max, c) === coord(max, item)) || isWall(nodes, coord(max, item))) {
+    neighbours.forEach((neighbourItem) => {
+      const item = nodes[neighbourItem.coordIndex];
+      const curCoord = item.coordIndex;
+      if (closed.find((c) => c.coordIndex === curCoord) || isWall(nodes, curCoord))
         return;
-      }
-      if (!queue.find((q) => coord(max, q) === coord(max, item))) {
+      if (!queue.find((q) => q.coordIndex === curCoord)) {
         gBest = true;
         item.h  = pointDist(item, endNode);
-        queue.push(item);
+        queue.push(nodes[curCoord]);
       } else if (gScore < item.g) {
         gBest = true;
       }
 
       if (gBest) {
-        history.set(coord(max, item), prevCoord);
+        history.set(curCoord, prevCoord);
         item.g  = gScore;
         item.f = item.g + item.h;
       }
@@ -116,7 +116,11 @@ export const Astar = (nodes, startNode, endNode, max) => {
 }
 
 export const mazeGenerator = (nodes, max) => {
-  const maze = nodes.map((node) => ({ x: node.x, y: node.y, cObstacle: true, isInMaze: false }));
+  const maze = nodes.map((node) => ({ 
+    ...node,
+    cObstacle: true, 
+    isInMaze: false 
+  }));
 
   const wallCheck = {
     'n': [0, 1, 0, -1],
@@ -173,10 +177,14 @@ export const mazeGenerator = (nodes, max) => {
     walls.splice(wallIndex, 1);
   }
 
-  // console.log(maze.filter((item) => item.cObstacle).length, max);
+  // REDO Algo when maze is not attractive
   if (maze.filter((item) => item.cObstacle).length < maze.length / 2) {
     return mazeGenerator(nodes, max);
   } 
 
-  return maze.map((item) => ({ ...item, isInMaze: undefined }));
+  for (let i = 0; i < maze.length; i++) {
+    delete maze[i].isInMaze;
+  }
+  return maze;
+  // return maze.map((item) => ({ ...item, isInMaze: undefined }));
 };

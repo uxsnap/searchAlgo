@@ -1,7 +1,7 @@
 export default class {
   constructor(cells) {
     this.cells = cells;
-    this.interval = null;
+    this.animating = null;
   }
 
   addToGrid(grid, cell, index) {
@@ -36,7 +36,7 @@ export default class {
   }
 
   destroy() {
-    clearTimeout(this.interval);
+    cancelAnimationFrame(this.animating);
     this.cells = null;
   }
 
@@ -49,15 +49,17 @@ export default class {
   }
 
   showAlgo(values, ind, cb) {
-    if (ind === values.length) {
-      cb();
-      return;
-    }
-    this.interval = setTimeout(() => {
+    const step = (values, ind, cb) => {
+      if (ind === values.length) {
+        cb();
+        cancelAnimationFrame(this.animating);
+        return;
+      }
       const cellInd = values[ind];
       cellInd && this.cells[cellInd] && this.cells[cellInd].elem.classList.add('checked-anim');
-      this.interval = setTimeout(() => this.showAlgo(values, ind + 1, cb));
-    });
+      this.animating = requestAnimationFrame(() => step(values, ind + 1, cb));
+    };
+    requestAnimationFrame(() => step(values, ind, cb));
   }
 
   showAlgoNow(values) {
@@ -78,13 +80,17 @@ export default class {
   }
 
   drawWay(grid, history, end, cb) {
-    if (end === 'S') return cb(true);
-    this.interval = setTimeout(() => {
+    const step = (grid, history, end, cb) => {
+      if (end === 'S') {
+        cancelAnimationFrame(this.animating);
+        return cb(true);
+      }
       const val = history.get(end);
       end = val;
-      this.interval = setTimeout(() => this.drawWay(grid, history, val, cb));
+      this.animating = requestAnimationFrame(() => step(grid, history, val, cb));
       grid.children[val] && grid.children[val].classList.add('way-anim');
-    });
+    };
+    requestAnimationFrame(() => step(grid, history, end, cb));
   }
 
   drawEnd(index, end) {
@@ -98,7 +104,7 @@ export default class {
     currentElement.cObstacle = false; 
     currentElement.cStart = false;
     currentElement.elem.classList.add('end');
-    return { x: currentElement.x, y: currentElement.y };
+    return { coordIndex: index, x: currentElement.x, y: currentElement.y };
   }
 
   drawWall(index) {
@@ -120,7 +126,7 @@ export default class {
     currentElement.cObstacle = false; 
     currentElement.cStart = true;
     currentElement.elem.classList.add('start');
-    return { x: currentElement.x, y: currentElement.y, g: 0, h: 0, f: 0 };
+    return { coordIndex: index, x: currentElement.x, y: currentElement.y, g: 0, h: 0, f: 0 };
   }
 
 }

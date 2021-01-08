@@ -1,4 +1,5 @@
 import { mazeGenerator } from './algos';
+import { createNeighbours, coord } from './helpers';
 
 export default class {
   constructor(max, coordFunc) {
@@ -15,6 +16,7 @@ export default class {
         cells[curCoord] = {
           x: i,
           y: j,
+          coordIndex: coord(this.max, { x: i, y: j }),
           g: 0, //Total cost of getting to this node 
           h: 0,// Heuristic func
           f: 0, // g + h
@@ -23,6 +25,7 @@ export default class {
           cEnd: false,
           cObstacle: false,
           cChecked: false, // For maze
+          neighbours: createNeighbours({ x: i, y: j }, this.max)
         };
       }
     }

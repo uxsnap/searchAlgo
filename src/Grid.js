@@ -44,7 +44,7 @@ export default class {
     if (this.options.Shift) {
       this.setOption(
         'endCoord',
-        this.drawInstance.drawEnd(elemIndex, this.options.endCoord && this.options.coord(this.options.endCoord))
+        this.drawInstance.drawEnd(elemIndex, this.options.endCoord && this.options.endCoord.coordIndex)
       );
       found && this.redrawAlgo();
     } else if (this.options.Ctrl) {
@@ -52,7 +52,7 @@ export default class {
     } else {
       this.setOption(
         'startCoord',
-        this.drawInstance.drawStart(elemIndex, this.options.startCoord && this.options.coord(this.options.startCoord))
+        this.drawInstance.drawStart(elemIndex, this.options.startCoord && this.options.startCoord.coordIndex)
       );
       found && this.redrawAlgo();
     }
@@ -60,13 +60,18 @@ export default class {
 
   startAlgo() {
     if (this.getOption('started')) return;
-    const { searchFunction, endCoord, startCoord, cellNum, coord } = this.options;
+    const { searchFunction, endCoord, startCoord, coord } = this.options;
     if (endCoord && startCoord) {
       this.setOption('started', true);
       this.grid.classList.add('no-click');
-      const history = searchFunction(this.drawInstance.getCells(), startCoord, endCoord, cellNum);
+      const cells = this.drawInstance.getCells(); 
+      const history = searchFunction(
+        cells,
+        cells[startCoord.coordIndex], 
+        cells[endCoord.coordIndex]
+      );
       const historyValues = [...history.keys()];
-      let endComputed = coord(endCoord);
+      let endComputed = endCoord.coordIndex;
       this.drawInstance.showAlgo(historyValues, 0, () => {
         this.drawInstance.drawWay(this.grid, history, endComputed, (found) => {
           this.setOption('found', found);
@@ -83,11 +88,16 @@ export default class {
   }
 
   redrawAlgo() {
-    const { searchFunction, endCoord, startCoord, cellNum, coord, found } = this.options;
+    const { searchFunction, endCoord, startCoord, coord, found } = this.options;
     if (endCoord && startCoord && found) {
-      const history = searchFunction(this.drawInstance.getCells(), startCoord, endCoord, cellNum);
+      const cells = this.drawInstance.getCells(); 
+      const history = searchFunction(
+        cells,
+        cells[startCoord.coordIndex], 
+        cells[endCoord.coordIndex]
+      );
       const historyValues = [...history.keys()];
-      let endComputed = coord(endCoord);
+      let endComputed = endCoord.coordIndex;
       this.drawInstance.clearChecked();
       this.drawInstance.showAlgoNow(historyValues);
       this.drawInstance.drawWayNow(history, endComputed);
