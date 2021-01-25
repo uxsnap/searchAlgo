@@ -300,13 +300,11 @@
         }) || isWall(nodes, curCoord)) return;
 
         if (!queue.find(function (q) {
-          return q.coordIndex === curCoord;
+          return q.coordIndex === curCoord || gScore < item.g;
         })) {
           gBest = true;
           item.h = pointDist(item, endNode);
-          queue.push(nodes[curCoord]);
-        } else if (gScore < item.g) {
-          gBest = true;
+          queue.push(item);
         }
 
         if (gBest) {

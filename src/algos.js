@@ -97,12 +97,10 @@ export const Astar = (nodes, startNode, endNode) => {
       const curCoord = item.coordIndex;
       if (closed.find((c) => c.coordIndex === curCoord) || isWall(nodes, curCoord))
         return;
-      if (!queue.find((q) => q.coordIndex === curCoord)) {
+      if (!queue.find((q) => q.coordIndex === curCoord || gScore < item.g)) {
         gBest = true;
         item.h  = pointDist(item, endNode);
-        queue.push(nodes[curCoord]);
-      } else if (gScore < item.g) {
-        gBest = true;
+        queue.push(item);
       }
 
       if (gBest) {
