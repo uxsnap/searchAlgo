@@ -1,5 +1,4 @@
 import {
-  getNeighbours, 
   createNeighbours,
   pointDist,
   isWall,
@@ -134,12 +133,16 @@ export const mazeGenerator = (nodes, max) => {
     return [
       maze[coord(max, { x: wall.x + offset[0], y: wall.y + offset[1]})],
       maze[coord(max, { x: wall.x + offset[2], y: wall.y + offset[3]})]
-    ].filter((cell) => cell && !cell.isInMaze);    
+    ].filter((cell) => cell && !cell.isInMaze);
   };
 
   const checkWallDivsion = (wall) => {
     const cell = cellThatWallDivides(wall);
     return !cell ? true : cell.isInMaze;
+  };
+
+  const getWallNewCell = (cell, coordName, sign, dir) => {
+    return { ...maze[coord(max, { ...cell, [coordName]: cell[coordName] + sign})], dir };
   };
 
   let wallInd = Math.floor(Math.random() * maze.length);
@@ -149,13 +152,16 @@ export const mazeGenerator = (nodes, max) => {
   wallInd = wallInd % 2 === 0 ? wallInd + 1 : wallInd;
   const startingCell = maze[wallInd];
   const walls = [];
+  let coordName;
   if (startingCell.x) {
-    if (startingCell.x - 1 > -1) walls.push({ ...maze[coord(max, { ...startingCell, x: startingCell.x - 1})], dir: 'w',});
-    if (startingCell.x + 1 < max) walls.push({ ...maze[coord(max, { ...startingCell, x: startingCell.x + 1})], dir: 'e',});
+    coordName = 'x';
+    if (startingCell.x - 1 > -1) walls.push(getWallNewCell(startingCell, coordName, -1, 'w'))
+    if (startingCell.x + 1 < max) walls.push(getWallNewCell(startingCell, coordName, 1, 'e'))
   }
   if (startingCell.y) {
-    if (startingCell.y - 1 > -1) walls.push({ ...maze[coord(max, { ...startingCell, y: startingCell.y - 1})], dir: 's',});
-    if (startingCell.y + 1 < max) walls.push({ ...maze[coord(max, { ...startingCell, y: startingCell.y + 1})], dir: 'n',});
+    coordName = 'y';
+    if (startingCell.y - 1 > -1) walls.push(getWallNewCell(startingCell, coordName, -1, 's'))
+    if (startingCell.y + 1 < max) walls.push(getWallNewCell(startingCell, coordName, 1, 'n'))
   }
   while (walls.length) {
     const wallIndex = getRandomElementIndexFromList(walls);
@@ -165,14 +171,17 @@ export const mazeGenerator = (nodes, max) => {
       const cell = cells[0];
       const mazeWallInd = coord(max, wall);
       const cellWallInd = coord(max, cell); 
+
       maze[mazeWallInd].cObstacle = false;
-      maze[cellWallInd].cObstacle = false;
       maze[mazeWallInd].isInMaze = true;
+      
+      maze[cellWallInd].cObstacle = false;
       maze[cellWallInd].isInMaze = true;
-      if (cell.x - 1 > -1) walls.push({...maze[coord(max, { ...cell, x: cell.x - 1})], dir: 'w'});
-      if (cell.y - 1 > -1) walls.push({...maze[coord(max, { ...cell, y: cell.y - 1})], dir: 's'});
-      if (cell.x + 1 < max) walls.push({...maze[coord(max, { ...cell, x: cell.x + 1})], dir: 'e'});
-      if (cell.y + 1 < max) walls.push({...maze[coord(max, { ...cell, y: cell.y + 1})], dir: 'n'});
+      
+      if (cell.x - 1 > -1) walls.push(getWallNewCell(cell, 'x', -1, 'w'))
+      if (cell.y - 1 > -1) walls.push(getWallNewCell(cell, 'y', -1, 's'))
+      if (cell.x + 1 < max) walls.push(getWallNewCell(cell, 'x', 1, 'e'))
+      if (cell.y + 1 < max) walls.push(getWallNewCell(cell, 'y', 1, 'n'))
     }
     walls.splice(wallIndex, 1);
   }
@@ -186,5 +195,4 @@ export const mazeGenerator = (nodes, max) => {
     delete maze[i].isInMaze;
   }
   return maze;
-  // return maze.map((item) => ({ ...item, isInMaze: undefined }));
 };

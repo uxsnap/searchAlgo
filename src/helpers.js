@@ -32,17 +32,6 @@ export const createNeighbours = (node, max) => {
   return neighbours;
 };
 
-export const getNeighbours = (nodes, node, max) => {
-  const neighbours = createNeighbours(node, max);
-  return neighbours.map((item) => {
-    const curNode = nodes[coord(max, item)];
-    return {
-      ...item, ...curNode
-    }
-  });
-};
-
-
 export const pointDist = (p1, p2) => {
   const d1 = Math.abs(p1.x - p2.x);
   const d2 = Math.abs(p1.y - p2.y);

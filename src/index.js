@@ -9,7 +9,7 @@ const helperButtons = document.querySelector('.helper-buttons');
 import { initialOptions, coord } from './helpers';
 import { BFS, Dijkstra, Astar } from './algos';
 import Grid from './Grid';
-import Generate from './Generate';
+import CellFactory from './CellFactory';
 
 // Preparations
 gridRange.setAttribute('max', (width / 25).toFixed(0));

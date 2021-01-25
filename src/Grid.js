@@ -1,22 +1,22 @@
 import Draw from './Draw';
-import Generate from './Generate';
+import CellFactory from './CellFactory';
 import { initialOptions } from './helpers';
 
 export default class {
   constructor(grid, options) {
     this.grid = grid;
     this.options = options;
-    this.generateInstance = null;
+    this.cellFactory = null;
     this.drawInstance = null;
     this.generate();
   }
 
   generate() {
-    this.generateInstance = new Generate(
+    this.cellFactory = new CellFactory(
       this.options.cellNum, 
       this.options.coord
     );
-    this.drawInstance = new Draw(this.generateInstance.generate());
+    this.drawInstance = new Draw(this.cellFactory.generateCells());
     this.drawInstance.initialDraw(this.grid);
   }
 
@@ -82,7 +82,7 @@ export default class {
   }
 
   generateMazeOnGrid() {
-    const cells = this.generateInstance.generateMaze(this.drawInstance.getCells());
+    const cells = this.cellFactory.generateMazeCells(this.drawInstance.getCells());
     this.resetGrid();
     this.drawInstance.drawMaze(this.grid, cells);
   }
